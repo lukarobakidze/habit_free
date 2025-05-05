@@ -1,0 +1,762 @@
+#:kivy 2.3.1
+#:import utils kivy.utils
+#:import Factory kivy.factory.Factory
+
+<BaseScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: status_label
+            text: root.status_message
+            size_hint_y: None
+            height: dp(30)
+            color: app.theme_colors.get('status_text' if not root.status_message.startswith('Error:') and not root.status_message.startswith('No account') and not root.status_message.startswith('Invalid') and not root.status_message.startswith('Incorrect') else 'error', [0,1,0,1])
+
+<PrettyButton@Button>:
+    background_color: [0,0,0,0]
+    background_normal: ''
+    background_down: ''
+    size_hint_y: None
+    height: dp(50)
+    font_size: dp(16)
+    bold: True
+    _pressed_color: [0,0,0,0]
+    canvas.before:
+        # Shadow effect
+        Color:
+            rgba: 0, 0, 0, 0.2
+        RoundedRectangle:
+            pos: self.x + dp(2), self.y - dp(2)
+            size: self.size
+            radius: [10,]
+        # Button color with press effect
+        Color:
+            rgba: self._pressed_color if self.state == 'down' else self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+    on_background_color: 
+        self._pressed_color = [x*0.8 for x in self.background_color]
+
+<PrettyInput@TextInput>:
+    background_color: 0,0,0,0
+    foreground_color: app.theme_colors.get('input_text', [0,0,0,1])
+    padding: [dp(20), dp(12)]
+    size_hint_y: None
+    height: dp(50)
+    multiline: False
+    font_size: dp(18)
+    canvas.before:
+        Color:
+            rgba: app.theme_colors.get('input_background', [1,1,1,1])
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10,]
+        Color:
+            rgba: app.theme_colors.get('secondary', [0,0,0,0.1]) if not self.focus else app.theme_colors.get('primary', [0,0.7,0.7,1])
+        Line:
+            rounded_rectangle: (self.x, self.y, self.width, self.height, 10)
+            width: 1.5 if self.focus else 1
+
+<LoginScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(15)
+        canvas.before:
+            Color:
+                rgba: app.theme_colors.get('background', [1,1,1,1])
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: 'Login'
+            font_size: dp(24)
+            size_hint_y: None
+            height: dp(40)
+            color: (0.2, 0.6, 0.2, 1)  # Dark green color
+            bold: True
+            italic: True
+
+        Label:
+            id: status_label
+            text: root.status_message
+            size_hint_y: None
+            height: dp(36)
+            font_size: dp(16)
+            color: app.theme_colors.get('error', [1,0,0,1]) if root.status_message and (root.status_message.startswith('Error') or root.status_message.startswith('No account') or root.status_message.startswith('Invalid') or root.status_message.startswith('Incorrect') or root.status_message.startswith('All fields') or root.status_message.startswith('Passwords do not match')) else app.theme_colors.get('status_text', [0,1,0,1])
+            halign: 'center'
+            valign: 'middle'
+            text_size: self.width, None
+
+        PrettyInput:
+            id: login_username
+            hint_text: 'Username'
+
+        PrettyInput:
+            id: login_password
+            hint_text: 'Password'
+            password: True
+
+        Widget:
+            size_hint_y: None
+            height: dp(20)  # Spacing above logo
+
+        Image:
+            source: 'brandlogo.png'
+            size_hint: None, None
+            size: dp(350), dp(175)  # Increased from 300x150
+            pos_hint: {'center_x': 0.5}
+            allow_stretch: True
+            keep_ratio: True
+
+        Widget:
+            size_hint_y: 1  # This will push the buttons to the bottom
+
+        PrettyButton:
+            text: 'Login'
+            id: login_button
+            background_color: app.theme_colors.get('primary', [0,0.7,0.7,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: root.do_login()
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.2
+                RoundedRectangle:
+                    pos: self.x + dp(2), self.y - dp(2)
+                    size: self.size
+                    radius: [10,]
+                Color:
+                    rgba: self.background_color
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [10,]
+
+        PrettyButton:
+            text: 'Register New Account'
+            id: register_button
+            background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: root.go_to_register()
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.2
+                RoundedRectangle:
+                    pos: self.x + dp(2), self.y - dp(2)
+                    size: self.size
+                    radius: [10,]
+                Color:
+                    rgba: self.background_color
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [10,]
+
+        Widget:
+            size_hint_y: 0.1  # Small spacing at the bottom
+
+<RegisterScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [dp(20), dp(10), dp(20), dp(20)]  # Reduced top padding from dp(20) to dp(10)
+        spacing: dp(15)
+        canvas.before:
+            Color:
+                rgba: app.theme_colors.get('background', [1,1,1,1])
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: 'Register'
+            font_size: dp(24)
+            size_hint_y: None
+            height: dp(40)
+            color: (0.2, 0.6, 0.2, 1)  # Dark green
+            bold: True
+            italic: True
+            halign: 'center'
+            valign: 'middle'
+            text_size: self.width, None
+
+        Widget:
+            size_hint_y: None
+            height: dp(120)  # Spacer remains to keep layout balanced
+
+        Label:
+            id: status_label
+            text: root.status_message
+            size_hint_y: None
+            height: dp(36)
+            font_size: dp(16)
+            color: app.theme_colors.get('error', [1,0,0,1]) if root.status_message and (root.status_message.startswith('Error') or root.status_message.startswith('No account') or root.status_message.startswith('Invalid') or root.status_message.startswith('Incorrect') or root.status_message.startswith('All fields') or root.status_message.startswith('Passwords do not match')) else app.theme_colors.get('status_text', [0,1,0,1])
+            halign: 'center'
+            valign: 'middle'
+            text_size: self.width, None
+
+        PrettyInput:
+            id: register_username
+            hint_text: 'Username'
+
+        PrettyInput:
+            id: register_password
+            hint_text: 'Password'
+            password: True
+
+        PrettyInput:
+            id: confirm_password
+            hint_text: 'Confirm Password'
+            password: True
+
+        Image:
+            source: 'progress.png'
+            size_hint: None, None
+            size: dp(350), dp(175)  # Increased from 300x150
+            pos_hint: {'center_x': 0.5}
+            allow_stretch: True
+            keep_ratio: True
+
+        Widget:
+            size_hint_y: 1  # This will push the buttons to the bottom
+
+        PrettyButton:
+            text: 'Register'
+            id: register_button
+            background_color: app.theme_colors.get('primary', [0,0.7,0.7,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: root.do_register()
+
+        PrettyButton:
+            text: 'Back to Login'
+            id: login_button
+            background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: root.go_to_login()
+
+        Widget:
+            size_hint_y: 0.1  # Small spacing at the bottom
+
+<ProfileScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(15)
+        canvas.before:
+            Color:
+                rgba: app.theme_colors.get('background', [1,1,1,1])
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: 'My Profile'
+            font_size: dp(24)
+            size_hint_y: None
+            height: dp(40)
+            color: app.theme_colors.get('secondary_text', [1,1,1,1])
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: None
+            height: dp(100)
+            padding: [20, 10]
+            canvas.before:
+                Color:
+                    rgba: app.theme_colors.get('item_background', [1,1,1,1])
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Label:
+                text: 'Current Username:'
+                size_hint_y: None
+                height: dp(30)
+                color: app.theme_colors.get('secondary_text', [1,1,1,1])
+                font_size: dp(16)
+
+            Label:
+                id: username_display
+                text: ''  # Will be set by the ProfileScreen class
+                size_hint_y: None
+                height: dp(40)
+                color: app.theme_colors.get('primary', [0,1,0,1])
+                font_size: dp(24)
+                bold: True
+
+        Widget:
+            size_hint_y: 0.3
+
+        PrettyButton:
+            text: 'Back to Dashboard'
+            id: dashboard_button
+            background_color: app.theme_colors.get('primary', [0,0.7,0.7,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: root.go_to_dashboard()
+
+        PrettyButton:
+            text: 'Logout'
+            id: logout_button
+            background_color: app.theme_colors.get('error', [1,0,0,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: root.logout()
+
+        Widget:
+            size_hint_y: 0.5
+
+<DashboardScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [dp(20), dp(5), dp(20), dp(20)]  # Left, Top, Right, Bottom padding
+        spacing: dp(15)
+        canvas.before:
+            Color:
+                rgba: app.theme_colors.get('background', [1,1,1,1])
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Widget:
+            size_hint_y: None
+            height: dp(10)  # Small top spacing
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(120)  # Increased height for larger image
+            pos_hint: {'center_x': 0.5}  # Center the entire BoxLayout
+
+            Widget:
+                size_hint_x: 0.15  # Left spacing
+
+            Image:
+                source: 'my_habits.png'
+                size_hint: None, None
+                size: dp(300), dp(100)  # Increased size
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}  # Center both horizontally and vertically
+                allow_stretch: True
+                keep_ratio: True
+
+            Widget:
+                size_hint_x: 0.15  # Right spacing
+
+        Label:
+            id: habit_fact_label
+            text: ''
+            size_hint_y: None
+            height: dp(60)
+            color: app.theme_colors.get('secondary_text', [1,1,1,1])
+            text_size: self.width, None
+            halign: 'center'
+            valign: 'middle'
+
+        ScrollView:
+            GridLayout:
+                id: habit_list
+                cols: 1
+                spacing: dp(10)
+                size_hint_y: None
+                height: self.minimum_height
+
+        Widget:
+            size_hint_y: 0.1  # Small spacing before buttons
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(10)
+
+            PrettyButton:
+                text: '+'
+                font_size: dp(24)
+                size_hint_x: 0.2
+                background_color: app.theme_colors.get('primary', [0,0.7,0.7,1])
+                color: app.theme_colors.get('primary_text', [1,1,1,1])
+                on_release: root.go_to_add_habit()
+
+            PrettyButton:
+                text: 'Messages'
+                size_hint_x: 0.5
+                background_color: [0.0, 0.3, 0.6, 1]
+                color: app.theme_colors.get('primary_text', [1,1,1,1])
+                on_release: root.go_to_inbox()
+
+            PrettyButton:
+                text: 'Profile'
+                size_hint_x: 0.3
+                background_color: app.theme_colors.get('accent', [0,0.7,0.7,1])
+                color: app.theme_colors.get('primary_text', [1,1,1,1])
+                on_release: root.go_to_profile()
+
+        Widget:
+            size_hint_y: 0.05  # Small spacing at the bottom
+
+<AddHabitScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(15)
+        canvas.before:
+            Color:
+                rgba: app.theme_colors.get('background', [1,1,1,1])
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: 'Add New Habit'
+            font_size: dp(24)
+            size_hint_y: None
+            height: dp(40)
+            color: (0.2, 0.6, 0.2, 1)  # Dark green
+            bold: True
+            italic: True
+            halign: 'center'
+            valign: 'middle'
+            text_size: self.width, None
+
+        Spinner:
+            id: predefined_spinner
+            text: 'Custom Habit'
+            values: root.predefined_habits
+            size_hint_y: None
+            height: dp(40)
+            background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            font_size: dp(16)
+            bold: True
+            on_text: root.on_predefined_select(self.text)
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.2  # Shadow
+                RoundedRectangle:
+                    pos: self.x + dp(2), self.y - dp(2)
+                    size: self.size
+                    radius: [10,]
+                Color:
+                    rgba: self.background_color
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [10,]
+
+        PrettyInput:
+            id: add_habit_input
+            hint_text: 'Enter custom habit name'
+            password: False
+
+        Widget:
+            size_hint_y: 1  # Push buttons to the bottom
+
+        PrettyButton:
+            text: 'Add Habit'
+            id: confirm_add_button
+            background_color: app.theme_colors.get('primary', [0,0.7,0.7,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: root.add_habit()
+
+        PrettyButton:
+            text: 'Cancel'
+            id: cancel_button
+            background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+            color: (0.8, 0.1, 0.1, 1)  # Dark red
+            on_release: root.go_to_dashboard()
+
+        Widget:
+            size_hint_y: 0.2
+
+<InboxScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(15)
+        canvas.before:
+            Color:
+                rgba: app.theme_colors.get('background', [1,1,1,1])
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        Label:
+            text: 'Message Inbox'
+            font_size: dp(24)
+            size_hint_y: None
+            height: dp(40)
+            color: app.theme_colors.get('secondary_text', [1,1,1,1])
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(10)
+
+            # Year Spinner
+            Spinner:
+                id: year_spinner
+                text: 'Year'
+                values: root.year_values
+                size_hint_x: 0.3
+                background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+                color: app.theme_colors.get('primary_text', [1,1,1,1])
+                font_size: dp(16)
+                bold: True
+                canvas.before:
+                    Color:
+                        rgba: 0, 0, 0, 0.2  # Shadow
+                    RoundedRectangle:
+                        pos: self.x + dp(2), self.y - dp(2)
+                        size: self.size
+                        radius: [10,]
+                    Color:
+                        rgba: self.background_color
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [10,]
+
+            # Month Spinner
+            Spinner:
+                id: month_spinner
+                text: 'Month'
+                values: root.month_names
+                size_hint_x: 0.4
+                background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+                color: app.theme_colors.get('primary_text', [1,1,1,1])
+                font_size: dp(16)
+                bold: True
+                canvas.before:
+                    Color:
+                        rgba: 0, 0, 0, 0.2  # Shadow
+                    RoundedRectangle:
+                        pos: self.x + dp(2), self.y - dp(2)
+                        size: self.size
+                        radius: [10,]
+                    Color:
+                        rgba: self.background_color
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [10,]
+
+            # Day Spinner
+            Spinner:
+                id: day_spinner
+                text: 'Day'
+                values: root.day_values
+                size_hint_x: 0.3
+                background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+                color: app.theme_colors.get('primary_text', [1,1,1,1])
+                font_size: dp(16)
+                bold: True
+                canvas.before:
+                    Color:
+                        rgba: 0, 0, 0, 0.2  # Shadow
+                    RoundedRectangle:
+                        pos: self.x + dp(2), self.y - dp(2)
+                        size: self.size
+                        radius: [10,]
+                    Color:
+                        rgba: self.background_color
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [10,]
+
+        # Message Input
+        PrettyInput:
+            id: message_input
+            hint_text: 'Write your message here'
+            multiline: True
+            height: dp(100)
+            size_hint_y: None
+
+        Label:
+            id: status_label
+            text: root.status_message
+            size_hint_y: None
+            height: dp(30)
+            color: app.theme_colors.get('error', [1,0,0,1])
+
+        ScrollView:
+            GridLayout:
+                id: messages_grid
+                cols: 1
+                spacing: dp(10)
+                size_hint_y: None
+                height: self.minimum_height
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(10)
+
+            PrettyButton:
+                text: 'Save Message'
+                id: save_button
+                size_hint_x: 0.7
+                background_color: app.theme_colors.get('primary', [0,0.7,0.7,1])
+                color: app.theme_colors.get('primary_text', [1,1,1,1])
+                on_release: root.save_message()
+
+            PrettyButton:
+                text: 'Back'
+                id: back_button
+                size_hint_x: 0.3
+                background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+                color: app.theme_colors.get('primary_text', [1,1,1,1])
+                on_release: root.go_to_dashboard()
+
+        Widget:
+            size_hint_y: 0.5
+
+<HabitItem>:
+    size_hint_y: None
+    height: dp(100)  # Increased height
+    padding: dp(15)  # Increased padding
+    spacing: dp(15)  # Increased spacing
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:  # Added rounded corners
+            pos: self.pos
+            size: self.size
+            radius: [15,]  # Rounded corners
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(8)
+
+        Label:
+            id: habit_label
+            text: root.habit_name
+            font_size: dp(20)  # Larger font
+            size_hint_y: None
+            height: dp(30)
+            color: app.theme_colors.get('secondary_text', [1,1,1,1])
+            text_size: self.width, None
+            halign: 'left'
+            bold: True  # Made bold
+
+        Label:
+            id: elapsed_time_label
+            text: root.elapsed_time_str.replace('d', ' Days ').replace('h', ' Hours ').replace('m', ' Minutes')  # Full words
+            font_size: dp(16)
+            size_hint_y: None
+            height: dp(25)
+            color: app.theme_colors.get('primary', [0,1,0,1])
+            text_size: self.width, None
+            halign: 'left'
+            valign: 'middle'  # Added for better vertical alignment
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_x: None
+        width: dp(50)
+        spacing: dp(8)  # Increased spacing
+
+        PrettyButton:
+            id: fact_button
+            text: ''  # Empty text since we'll draw the ! manually
+            size_hint: None, None
+            size: dp(35), dp(35)
+            background_color: app.theme_colors.get('primary', [0,0.7,0.7,1])  # Changed from error to primary color
+            on_release: root.show_habit_fact()
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [17.5,]
+            canvas.after:
+                Color:
+                    rgba: [1, 1, 1, 1]  # Pure white for the !
+                Rectangle:
+                    pos: self.center_x - dp(1.5), self.center_y - dp(12)
+                    size: dp(3), dp(16)
+                Ellipse:
+                    pos: self.center_x - dp(1.5), self.center_y + dp(6)
+                    size: dp(3), dp(3)
+
+        PrettyButton:
+            id: delete_button
+            text: '×'  # Unicode multiplication sign (more visible than regular 'x')
+            font_size: dp(24)  # Larger for better visibility
+            bold: True  # Make it bold
+            size_hint: None, None
+            size: dp(35), dp(35)  # Larger button
+            background_color: app.theme_colors.get('error', [1,0,0,1])
+            color: [1, 1, 1, 1]  # Pure white text
+            on_release: app.root.current_screen.delete_habit(root.habit_id)
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [17.5,]  # Half of size for perfect circle
+
+<MessageItem>:
+    size_hint_y: None
+    height: dp(100)
+    padding: dp(10)
+    spacing: dp(10)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(5)
+
+        Label:
+            id: message_content
+            text: root.masked_text if root.is_masked else root.message_text
+            font_size: dp(16)
+            size_hint_y: None
+            height: dp(60)
+            color: app.theme_colors.get('secondary_text', [1,1,1,1])
+            text_size: self.width, None
+            halign: 'left'
+            valign: 'top'
+
+        Label:
+            id: message_date
+            text: root.send_date_str
+            font_size: dp(14)
+            size_hint_y: None
+            height: dp(20)
+            color: app.theme_colors.get('primary', [0,1,0,1])
+            text_size: self.width, None
+            halign: 'left'
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_x: None
+        width: dp(30)
+        spacing: dp(5)
+
+        PrettyButton:
+            id: toggle_mask_button
+            text: '👁️' if root.is_masked else '🔒'
+            font_size: dp(16)
+            size_hint: None, None
+            size: dp(30), dp(30)
+            background_color: app.theme_colors.get('secondary', [0,0.7,0.7,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: root.toggle_mask()
+
+        PrettyButton:
+            id: delete_msg_button
+            text: 'X'
+            font_size: dp(16)
+            size_hint: None, None
+            size: dp(30), dp(30)
+            background_color: app.theme_colors.get('error', [1,0,0,1])
+            color: app.theme_colors.get('primary_text', [1,1,1,1])
+            on_release: app.root.current_screen.delete_message(root.message_id) 
